@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import React, { useMemo } from "react";
 import Animated, {
   Extrapolation,
@@ -19,7 +19,7 @@ interface BalanceCardProps {
 }
 
 export default function BalanceCard({ scrollY, setData }: BalanceCardProps) {
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const { top } = useSafeAreaInsets();
   const SNAP_HEIGHT = top + 78;
 
@@ -31,37 +31,40 @@ export default function BalanceCard({ scrollY, setData }: BalanceCardProps) {
       Extrapolation.CLAMP
     );
 
-    const paddingTop = interpolate(
+    const marginBottom = interpolate(
       scrollY.value,
-      [0, HEIGHT + 62],
-      [0, 10],
+      [0, SNAP_HEIGHT],
+      [0, -24],
       Extrapolation.CLAMP
     );
 
     return {
       height,
+
       //   transform: [{ translateY }],
-      //   paddingTop,
+      //   marginBottom,
     };
   });
 
   return (
-    <Animated.ScrollView
-      style={[
-        {
-          height: HEIGHT,
-        },
-        animatedStyle,
-      ]}
-      horizontal
-      snapToInterval={width}
-      showsHorizontalScrollIndicator={false}
-      decelerationRate={"fast"}
-    >
-      {balance.map((item, index) => (
-        <Card key={index} {...item} scrollY={scrollY} />
-      ))}
-    </Animated.ScrollView>
+    <>
+      <Animated.ScrollView
+        style={[
+          {
+            height: HEIGHT,
+          },
+          animatedStyle,
+        ]}
+        horizontal
+        snapToInterval={width}
+        showsHorizontalScrollIndicator={false}
+        decelerationRate={"fast"}
+      >
+        {balance.map((item, index) => (
+          <Card key={index} {...item} scrollY={scrollY} />
+        ))}
+      </Animated.ScrollView>
+    </>
   );
 }
 
@@ -103,7 +106,6 @@ const Card = ({
           justifyContent: "center",
           overflow: "hidden",
         },
-        // cardAnimatedStyle,
       ]}
     >
       <Animated.View
@@ -119,12 +121,31 @@ const Card = ({
           },
           animatedStyle,
         ]}
-      />
+      >
+        <View
+          style={{
+            overflow: "hidden",
+            borderRadius: 18 + FACTOR,
+            height: "100%",
+          }}
+        >
+          <View
+            style={{
+              width: 500,
+              aspectRatio: 1,
+              borderRadius: 250,
+              bottom: 160,
+              left: -300,
+              backgroundColor: "#ffffff30",
+            }}
+          />
+        </View>
+      </Animated.View>
       <View
         style={{
           height: HEIGHT,
           justifyContent: "flex-end",
-          //   backgroundColor: "red",
+          overflow: "hidden",
           padding: 16,
         }}
       >

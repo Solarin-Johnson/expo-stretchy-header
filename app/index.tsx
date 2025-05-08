@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import Animated, {
   runOnJS,
@@ -13,7 +13,6 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 import BalanceCard from "@/components/ui/BalanceCard";
-import { FACTOR } from "@/constants";
 
 export default function Index() {
   const [data, setData] = useState([0, 1, 2, 3, 4]);
@@ -56,17 +55,19 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[1]}
         onScroll={scrollHandler}
-        scrollEventThrottle={16}
+        // scrollEventThrottle={16}
         // snapToInterval={snapInterval}
-        // decelerationRate={"fast"}
+        decelerationRate={"fast"}
       >
         <Header />
         <BalanceCard scrollY={scrollY} setData={setData} />
-        {data.map((item, index) => (
-          <View key={index.toString()} style={{ height: 280 }}>
-            <Text>Item</Text>
-          </View>
-        ))}
+        <View style={{ paddingTop: 12 }}>
+          {data.map((item, index) => (
+            <View key={index.toString()} style={{ height: 280 }}>
+              <Text>Item</Text>
+            </View>
+          ))}
+        </View>
       </Animated.ScrollView>
     </ThemedView>
   );
