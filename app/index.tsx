@@ -1,11 +1,7 @@
-import React, { useRef, useState } from "react";
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
-import Animated, {
-  runOnJS,
-  scrollTo,
-  useAnimatedRef,
-} from "react-native-reanimated";
+import Animated, { scrollTo, useAnimatedRef } from "react-native-reanimated";
 import Header from "@/components/ui/Header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -13,9 +9,11 @@ import {
   useSharedValue,
 } from "react-native-reanimated";
 import BalanceCard from "@/components/ui/BalanceCard";
+import ItemCard from "@/components/ui/ItemCard";
+import { getShuffledExpenses } from "@/constants";
 
 export default function Index() {
-  const [data, setData] = useState([0, 1, 2, 3, 4]);
+  const [data, setData] = useState(getShuffledExpenses(1));
   const { top, bottom } = useSafeAreaInsets();
   const hasSnapped = useSharedValue(false);
   const scrollY = useSharedValue(0);
@@ -55,17 +53,13 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
         stickyHeaderIndices={[1]}
         onScroll={scrollHandler}
-        // scrollEventThrottle={16}
-        // snapToInterval={snapInterval}
         decelerationRate={"fast"}
       >
         <Header />
         <BalanceCard scrollY={scrollY} setData={setData} />
         <View style={{ paddingTop: 12 }}>
           {data.map((item, index) => (
-            <View key={index.toString()} style={{ height: 280 }}>
-              <Text>Item</Text>
-            </View>
+            <ItemCard key={index} {...item} />
           ))}
         </View>
       </Animated.ScrollView>

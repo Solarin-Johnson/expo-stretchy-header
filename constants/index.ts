@@ -12,7 +12,7 @@ export interface Balance {
   color: string;
 }
 
-export const expenses: Expense[] = [
+export const EXPENSES: Expense[] = [
   { name: "Figma Pro", category: "Software", amount: 12 },
   { name: "Wireless Mouse", category: "Products`", amount: 15 },
   { name: "Photoshop", category: "Software", amount: 21 },
@@ -34,3 +34,16 @@ export const balance: Balance[] = [
 ];
 
 export const FACTOR = PixelRatio.getPixelSizeForLayoutSize(2);
+
+export const getShuffledExpenses = (key: number): Expense[] => {
+  const shuffled = [...EXPENSES];
+  let seed = key;
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    seed = (seed * 1664525 + 1013904223) % 2147483647;
+    const j = seed % (i + 1);
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+};

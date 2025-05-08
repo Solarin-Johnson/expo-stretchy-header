@@ -6,7 +6,7 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { balance, Balance, FACTOR } from "@/constants";
+import { balance, Balance, FACTOR, getShuffledExpenses } from "@/constants";
 import { ThemedText } from "../ThemedText";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -19,9 +19,9 @@ interface BalanceCardProps {
 }
 
 export default function BalanceCard({ scrollY, setData }: BalanceCardProps) {
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const { top } = useSafeAreaInsets();
-  const SNAP_HEIGHT = top + 78;
+  const SNAP_HEIGHT = useMemo(() => top + 78, [top]);
 
   const animatedStyle = useAnimatedStyle(() => {
     const height = interpolate(
@@ -31,40 +31,33 @@ export default function BalanceCard({ scrollY, setData }: BalanceCardProps) {
       Extrapolation.CLAMP
     );
 
-    const marginBottom = interpolate(
-      scrollY.value,
-      [0, SNAP_HEIGHT],
-      [0, -24],
-      Extrapolation.CLAMP
-    );
-
     return {
       height,
-
-      //   transform: [{ translateY }],
-      //   marginBottom,
     };
   });
 
   return (
-    <>
-      <Animated.ScrollView
-        style={[
-          {
-            height: HEIGHT,
-          },
-          animatedStyle,
-        ]}
-        horizontal
-        snapToInterval={width}
-        showsHorizontalScrollIndicator={false}
-        decelerationRate={"fast"}
-      >
-        {balance.map((item, index) => (
-          <Card key={index} {...item} scrollY={scrollY} />
-        ))}
-      </Animated.ScrollView>
-    </>
+    <Animated.ScrollView
+      style={[
+        {
+          height: HEIGHT,
+        },
+        animatedStyle,
+      ]}
+      horizontal
+      snapToInterval={width}
+      showsHorizontalScrollIndicator={false}
+      decelerationRate={"fast"}
+      onMomentumScrollEnd={(e) => {
+        const x = e.nativeEvent.contentOffset.x;
+        const index = Math.round(x / width);
+        setData(getShuffledExpenses(index));
+      }}
+    >
+      {balance.map((item, index) => (
+        <Card key={index} {...item} scrollY={scrollY} />
+      ))}
+    </Animated.ScrollView>
   );
 }
 
@@ -89,7 +82,7 @@ const Card = ({
     const scaleX = interpolate(
       scrollY.value,
       [0, SNAP_HEIGHT],
-      [1, 1.4],
+      [1, 1.2],
       Extrapolation.CLAMP
     );
     return {
@@ -97,8 +90,35 @@ const Card = ({
     };
   });
 
+  const animatedCardStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollY.value,
+      [0, SNAP_HEIGHT],
+      [1, 1.15],
+      Extrapolation.CLAMP
+    );
+
+    const translateX = interpolate(
+      scrollY.value,
+      [0, SNAP_HEIGHT],
+      [0, 16],
+      Extrapolation.CLAMP
+    );
+
+    const translateY = interpolate(
+      scrollY.value,
+      [0, SNAP_HEIGHT],
+      [0, 6],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      transform: [{ scale }, { translateX }, { translateY }],
+    };
+  });
+
   return (
-    <Animated.View
+    <View
       style={[
         {
           width: width,
@@ -141,13 +161,16 @@ const Card = ({
           />
         </View>
       </Animated.View>
-      <View
-        style={{
-          height: HEIGHT,
-          justifyContent: "flex-end",
-          overflow: "hidden",
-          padding: 16,
-        }}
+      <Animated.View
+        style={[
+          {
+            height: HEIGHT,
+            justifyContent: "flex-end",
+            overflow: "hidden",
+            padding: 16,
+          },
+          animatedCardStyle,
+        ]}
       >
         <ThemedText style={{ color: "#fff" }} type="regular">
           {name}
@@ -158,8 +181,8 @@ const Card = ({
         >
           {formattedAmount}
         </ThemedText>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </View>
   );
 };
 
